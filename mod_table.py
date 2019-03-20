@@ -1,3 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Author: Jeremy Parks
+# Note: Requires Python 3.7.x or newer
 table = {
 	"Boots": {
 		"+# to maximum Life": [('100', '+(8 - 10) to maximum Life'), ('175', '+(11 - 14) to maximum Life'), ('250', '+(15 - 19) to maximum Life'), ('325', '+(20 - 24) to maximum Life'), ('400', '+(25 - 30) to maximum Life\n4% increased maximum Life'), ('1000', '(5 - 6)% increased maximum Life')],

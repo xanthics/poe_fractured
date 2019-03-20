@@ -1,3 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Author: Jeremy Parks
+# Note: Requires Python 3.7.x or newer
 bases = {
 	"Crude Bow": "Bow",
 	"Short Bow": "Bow",

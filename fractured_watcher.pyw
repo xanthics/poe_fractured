@@ -1,3 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Author: Jeremy Parks
+# Note: Requires Python 3.7.x or newer
 import pyperclip
 import tkinter as tk
 from bases import bases
