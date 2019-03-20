@@ -46,8 +46,9 @@ class App:
 			now = now.replace('\r', '').strip()
 			nowsplit = now.split('\n')
 			# make sure 'Fractured Item' is in our clipboard
+			# if not, display hint and create timer
 			if 'Fractured Item' not in nowsplit:
-				self.clipboard_item['text'] = "Copy a fractured item to your keyboard"
+				self.clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from https://poedb.tw/ItemSynthesisMods"
 				self.root.after(1000, self.update_item)
 				return
 			# update main window item text
