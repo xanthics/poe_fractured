@@ -10,7 +10,9 @@ from mod_table import table
 
 class App:
 	def __init__(self):
+		# keep track of what we have already seen on the clipboard
 		self.old = ''
+		# set up window
 		self.root = tk.Tk()
 		self.root.title("Fractured mod scanner")
 		# display clipboard stats
@@ -22,13 +24,15 @@ class App:
 		self.base_type.grid(sticky='we', column=1, row=0)
 		self.base_type.grid_columnconfigure(0, weight=1)
 		self.base_type.grid_remove()
-
+		# keep track of all the stat windows we create
 		self.fracture_stat = []
-
+		# enter timer function
 		self.update_item()
 		self.root.mainloop()
 
+	# Watches the clipboard and updates the window as necessary
 	def update_item(self):
+		# get data from clipboard
 		now = pyperclip.paste()
 		# check for new item
 		if self.old != now:
@@ -50,27 +54,33 @@ class App:
 			self.clipboard_item['text'] = now
 			modcount = 0
 			base = ''
+			# TODO: better logic for finding item mods
+			# TODO: support for non-fractured mods
 			for line in nowsplit:
+				# Check if line is the name of a known item base
 				if line in bases:
 					self.base_type['text'] = 'Basetype: {}'.format(bases[line])
 					base = bases[line]
 					self.base_type.grid()
+				# Check if line is a fractured mod
 				if '(fractured)' in line:
 					if len(self.fracture_stat) <= modcount:
 						# display first fractured mod and possible outcomes
 						self.fracture_stat.append(tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
 						self.fracture_stat[modcount].grid(sticky='we', column=1, row=modcount+1)
 						self.fracture_stat[modcount].grid_columnconfigure(0, weight=1)
-
+					# Look up mod in our table and display information about it
 					mod = line.replace(' (fractured)', '')
 					self.fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
 					self.fracture_stat[modcount]['text'] += self.findmods(base, mod)
 					self.fracture_stat[modcount].grid()
 					modcount += 1
-
+		# call this function again in 1 second
 		self.root.after(1000, self.update_item)
 
+	# Given a base type and a mod, return formatted information about it
 	def findmods(self, base, mod):
+		# Some mods have static numbers in them.  Check those first before processing mod
 		lookups = {
 			"Has 1 Abyssal Socket": "Has 1 Abyssal Socket",
 			"% chance to gain Onslaught for 3 seconds when Hit": "#% chance to gain Onslaught for 3 seconds when Hit",
@@ -95,6 +105,7 @@ class App:
 				if l in mod:
 					val = lookups[l]
 					break
+		# If mod is not one of the special cases replace all the numbers with '#'
 		if not val:
 			val = mod
 			for n in range(10):
@@ -103,6 +114,7 @@ class App:
 			val = val.replace('#.#', '#')
 			while '##' in val:
 				val = val.replace('##', '#')
+		# Check if mod is in our lookup table
 		if val in table[base]:
 			ret = '{:>8}|{}\n'.format('Count', "Result")
 			for idx in range(len(table[base][val])):
