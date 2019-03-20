@@ -2,3 +2,5 @@
 .idea/
 poedb_parse/poedb.json
 __pycache__/
+build/
+fractured_watcher.spec
