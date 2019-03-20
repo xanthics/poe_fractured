@@ -15,10 +15,12 @@ class App:
 		self.root.title("Fractured mod scanner")
 		# display clipboard stats
 		self.clipboard_item = tk.Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove")
-		self.clipboard_item.grid(column=0, row=0, rowspan=10)
+		self.clipboard_item.grid(sticky="ns", column=0, row=0, rowspan=10)
+		self.clipboard_item.grid_columnconfigure(0, weight=1)
 		# display base type
-		self.base_type = tk.Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont')
-		self.base_type.grid(column=1, row=0)
+		self.base_type = tk.Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont', anchor="w")
+		self.base_type.grid(sticky='we', column=1, row=0)
+		self.base_type.grid_columnconfigure(0, weight=1)
 		self.base_type.grid_remove()
 
 		self.fracture_stat = []
@@ -56,8 +58,9 @@ class App:
 				if '(fractured)' in line:
 					if len(self.fracture_stat) <= modcount:
 						# display first fractured mod and possible outcomes
-						self.fracture_stat.append(tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont'))
-						self.fracture_stat[modcount].grid(column=1, row=modcount+1)
+						self.fracture_stat.append(tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
+						self.fracture_stat[modcount].grid(sticky='we', column=1, row=modcount+1)
+						self.fracture_stat[modcount].grid_columnconfigure(0, weight=1)
 
 					mod = line.replace(' (fractured)', '')
 					self.fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
