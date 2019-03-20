@@ -11,25 +11,13 @@ class App:
 		self.root.title("Fractured mod scanner")
 		# display clipboard stats
 		self.clipboard_item = tk.Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove")
-		self.clipboard_item.grid(column=0, row=0, rowspan=4)
+		self.clipboard_item.grid(column=0, row=0, rowspan=10)
 		# display base type
 		self.base_type = tk.Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont')
 		self.base_type.grid(column=1, row=0)
 		self.base_type.grid_remove()
-		# display first fractured mod and possible outcomes
-		self.first = tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont')
-		self.first.grid(column=1, row=1)
-		self.first.grid_remove()
-		# display second fractured mod and possible outcomes
-		self.second = tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont')
-		self.second.grid(column=1, row=2)
-		self.second.grid_remove()
-		# display third fractured mod and possible outcomes
-		self.third = tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont')
-		self.third.grid(column=1, row=3)
-		self.third.grid_remove()
 
-		self.fracture_stat = [self.first, self.second, self.third]
+		self.fracture_stat = []
 
 		self.update_item()
 		self.root.mainloop()
@@ -42,9 +30,8 @@ class App:
 			self.old = now
 			# hide all extra boxes, they will show again when they have data
 			self.base_type.grid_remove()
-			self.first.grid_remove()
-			self.second.grid_remove()
-			self.third.grid_remove()
+			for square in self.fracture_stat:
+				square.grid_remove()
 			# remove windows carriage returns
 			now = now.replace('\r', '').strip()
 			nowsplit = now.split('\n')
@@ -63,6 +50,11 @@ class App:
 					base = bases[line]
 					self.base_type.grid()
 				if '(fractured)' in line:
+					if len(self.fracture_stat) <= modcount:
+						# display first fractured mod and possible outcomes
+						self.fracture_stat.append(tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont'))
+						self.fracture_stat[modcount].grid(column=1, row=modcount+1)
+
 					mod = line.replace(' (fractured)', '')
 					self.fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
 					self.fracture_stat[modcount]['text'] += self.findmods(base, mod)
