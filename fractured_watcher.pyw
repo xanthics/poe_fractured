@@ -15,6 +15,9 @@ class App:
 		# set up window
 		self.root = tk.Tk()
 		self.root.title("Fractured mod scanner")
+		# transparent
+#		self.root.wait_visibility(self.root)
+#		self.root.wm_attributes('-alpha', 0.3)
 		# display clipboard stats
 		self.clipboard_item = tk.Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove")
 		self.clipboard_item.grid(sticky="ns", column=0, row=0, rowspan=10)
@@ -83,21 +86,22 @@ class App:
 	def findmods(self, base, mod):
 		# Some mods have static numbers in them.  Check those first before processing mod
 		lookups = {
-			"Has 1 Abyssal Socket": "Has 1 Abyssal Socket",
+			"% Chance to Trigger Level 18 Summon Spectral Wolf on Kill": "#% Chance to Trigger Level 18 Summon Spectral Wolf on Kill",
+			"% chance for Bleeding inflicted with this Weapon to deal 100% more Damage": "#% chance for Bleeding inflicted with this Weapon to deal 100% more Damage",
+			"% chance for Poisons inflicted with this Weapon to deal 100% more Damage": "#% chance for Poisons inflicted with this Weapon to deal 100% more Damage",
+			"% chance to Cast Level 20 Fire Burst on Hit": "#% chance to Cast Level 20 Fire Burst on Hit",
+			"% chance to Gain Unholy Might for 4 seconds on Melee Kill": "#% chance to Gain Unholy Might for 4 seconds on Melee Kill",
+			"% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed": "#% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed",
+			"% chance to Intimidate Enemies for 4 seconds on Hit": "#% chance to Intimidate Enemies for 4 seconds on Hit",
+			"% chance to Recover 10% of Maximum Mana when you use a Skill": "#% chance to Recover 10% of Maximum Mana when you use a Skill",
 			"% chance to gain Onslaught for 3 seconds when Hit": "#% chance to gain Onslaught for 3 seconds when Hit",
 			"% chance to gain Onslaught for 4 seconds on Kill": "#% chance to gain Onslaught for 4 seconds on Kill",
-			"% chance to Recover 10% of Maximum Mana when you use a Skill": "#% chance to Recover 10% of Maximum Mana when you use a Skill",
-			"% of Damage taken gained as Mana over 4 seconds when Hit": "#% of Damage taken gained as Mana over 4 seconds when Hit",
-			"% Chance to Trigger Level 18 Summon Spectral Wolf on Kill": "#% Chance to Trigger Level 18 Summon Spectral Wolf on Kill",
-			"% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed": "#% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed",
 			"% chance to gain Phasing for 4 seconds on Kill": "#% chance to gain Phasing for 4 seconds on Kill",
-			"% chance to Gain Unholy Might for 4 seconds on Melee Kill": "#% chance to Gain Unholy Might for 4 seconds on Melee Kill",
-			"% chance to Cast Level 20 Fire Burst on Hit": "#% chance to Cast Level 20 Fire Burst on Hit",
-			"Your Hits inflict Decay, dealing 500 Chaos Damage per second for 8 seconds": "Your Hits inflict Decay, dealing 500 Chaos Damage per second for 8 seconds",
-			"% chance to Intimidate Enemies for 4 seconds on Hit": "#% chance to Intimidate Enemies for 4 seconds on Hit",
-			"% chance for Poisons inflicted with this Weapon to deal 100% more Damage": "#% chance for Poisons inflicted with this Weapon to deal 100% more Damage",
-			"% chance for Bleeding inflicted with this Weapon to deal 100% more Damage": "#% chance for Bleeding inflicted with this Weapon to deal 100% more Damage"
-		}
+			"% of Damage taken gained as Mana over 4 seconds when Hit": "#% of Damage taken gained as Mana over 4 seconds when Hit",
+			"Has 1 Abyssal Socket": "Has 1 Abyssal Socket",
+			"Socketed Gems have +3.5% Critical Strike Chance": "Socketed Gems have +3.5% Critical Strike Chance",
+			"Triggers Level 20 Spectral Spirits when Equipped": "Triggers Level 20 Spectral Spirits when Equipped",
+			"Your Hits inflict Decay, dealing 500 Chaos Damage per second for 8 seconds": "Your Hits inflict Decay, dealing 500 Chaos Damage per second for 8 seconds"		}
 		val = ''
 		if "Minions have " in mod and "% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed" in mod:
 			val = "Minions have #% chance to Hinder Enemies on Hit with Spells, with 30% reduced Movement Speed"
