@@ -6,7 +6,7 @@ import json
 from os.path import join
 
 
-# takes path to RePoE as only parameter
+# takes path to RePoE data as only parameter
 def process_json(path='C:\\git\\RePoE\\data'):
 	with open(join(path, 'stat_translations.json'), 'r') as f:
 		plaintext = json.load(f)
@@ -15,23 +15,32 @@ def process_json(path='C:\\git\\RePoE\\data'):
 	with open(join(path, 'mods.json'), 'r') as f:
 		mods = json.load(f)
 
-	pt = {}
-	sy = {}
-	m = {}
+	value_transforms = {
+		"per_minute_to_per_second_2dp_if_required": 1/60,
+		"per_minute_to_per_second": 1/60,
+		"milliseconds_to_seconds": 1/1000,
+		"divide_by_one_hundred": 1/100,
+		"negate": 1
+	}
 
+	readable_name = {}
+	synthesized_implicits = {}
+	mods_full = {}
+
+	vals_ = []
 	for mod in plaintext:
-		for id in mod['ids']:
-			pt[id] = mod['English']
+		for idm in mod['ids']:
+			readable_name[idm] = mod['English']
 
 	for mod in mods:
-		m[mod] = mods[mod]['stats']
+		mods_full[mod] = mods[mod]['stats']
 
 	for mod in synthesis:
-		sy[(mod['stat']['id'], abs(mod['stat']['value']))] = (mod['mods'], mod['item_classes'], mod['stat']['value'])
+		synthesized_implicits[(mod['stat']['id'], abs(mod['stat']['value']))] = (mod['mods'], mod['item_classes'], mod['stat']['value'])
 
 	output = {}
-	for k in sorted(sy):
-		if k[0] not in pt:
+	for k in sorted(synthesized_implicits):
+		if k[0] not in readable_name:
 			lookup = {
 				'essence_buff_elemental_damage_taken_+%': 'essence_display_elemental_damage_taken_while_not_moving_+%',
 				'essence_buff_ground_fire_damage_to_deal_per_second': 'essence_display_drop_burning_ground_while_moving_fire_damage_per_second'
@@ -40,32 +49,37 @@ def process_json(path='C:\\git\\RePoE\\data'):
 		else:
 			key = k[0]
 
-		if sy[k][2] < 0 and len(pt[key]) > 1:
-			form = pt[key][1]
+		if synthesized_implicits[k][2] < 0 and len(readable_name[key]) > 1:
+			form = readable_name[key][1]
 		else:
-			form = pt[key][0]
+			form = readable_name[key][0]
+		mult_ = 1
+		if form['index_handlers'][0]:
+			mult_ = value_transforms[form['index_handlers'][0][0]]
 		modstr = form['string'].format(*form['format'])
-		for base in sy[k][1]:
+		for base in synthesized_implicits[k][1]:
 			if base not in output:
 				output[base] = {}
 			if modstr not in output[base]:
 				output[base][modstr] = []
 
 			out = []
-			for smod in sy[k][0]:
-				vals = []
-				for entry in m[smod]:
-					if entry['min'] == entry['max']:
-						vals.append(str(entry['min']))
-					else:
-						vals.append('({} - {})'.format(entry['min'], entry['max']))
-				if m[smod][0]['min'] < 0 and len(pt[m[smod][0]['id']]) > 1:
-					sform = pt[m[smod][0]['id']][1]
+			for smod in synthesized_implicits[k][0]:
+				if mods_full[smod][0]['min'] < 0 and len(readable_name[mods_full[smod][0]['id']]) > 1:
+					sform = readable_name[mods_full[smod][0]['id']][1]
 				else:
-					sform = pt[m[smod][0]['id']][0]
+					sform = readable_name[mods_full[smod][0]['id']][0]
+				vals = []
+				mult = 1
+				if sform['index_handlers'][0]:
+					mult = value_transforms[sform['index_handlers'][0][0]]
+				for entry in mods_full[smod]:
+					if entry['min'] == entry['max']:
+						vals.append('{}'.format(round(entry['min'] * mult, 2)))
+					else:
+						vals.append('({} - {})'.format(round(entry['min'] * mult, 2), round(entry['max'] * mult, 2)))
 				out.append(sform['string'].format(*vals))
-			output[base][modstr].append((k[1], '\n'.join(out)))
-		# ('100', '+(8 - 10) to maximum Life')
+			output[base][modstr].append((round(k[1] * mult_, 2), '\n'.join(out)))
 	sp = []
 	buf = 'table = {\n'
 	for base in sorted(output):
