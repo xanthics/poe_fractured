@@ -6,6 +6,21 @@ import json
 from os.path import join
 
 
+# Finds the correct entry for mods that have multiple variations
+def findname(modmin, modmax, modlist):
+	for v in modlist:
+		if len(v['condition'][0]) > 1:
+			if v['condition'][0]['min'] <= modmin and modmax <= v['condition'][0]['max']:
+				return v
+		if 'min' in v['condition'][0] and modmin >= v['condition'][0]['min']:
+			return v
+		if 'max' in v['condition'][0] and modmax <= v['condition'][0]['max']:
+			return v
+		if not v['condition'][0] and v['string']:
+			return v
+	print("{} - {}\n{}".format(modmin, modmax, '\n'.join([str(x) for x in modlist])))
+
+
 # takes path to RePoE data as only parameter
 def process_json(path='C:\\git\\RePoE\\data'):
 	with open(join(path, 'stat_translations.json'), 'r') as f:
@@ -21,14 +36,14 @@ def process_json(path='C:\\git\\RePoE\\data'):
 		"per_minute_to_per_second": 1/60,
 		"milliseconds_to_seconds": 1/1000,
 		"divide_by_one_hundred": 1/100,
-		"negate": -1
+		"negate": -1,
+		"canonical_stat": 1
 	}
 
 	readable_name = {}
 	synthesized_implicits = {}
 	mods_full = {}
 
-	vals_ = []
 	for mod in plaintext:
 		for idm in mod['ids']:
 			readable_name[idm] = mod['English']
@@ -52,8 +67,9 @@ def process_json(path='C:\\git\\RePoE\\data'):
 		else:
 			key = k[0]
 
-		if synthesized_implicits[k][2] < 0 and len(readable_name[key]) > 1:
-			form = readable_name[key][1]
+		if len(readable_name[key]) > 1:
+			tval = 1 if synthesized_implicits[k][2] > 0 else -1
+			form = findname(tval, tval, readable_name[key])
 		else:
 			form = readable_name[key][0]
 		mult_ = 1
@@ -68,20 +84,32 @@ def process_json(path='C:\\git\\RePoE\\data'):
 
 			out = []
 			for smod in synthesized_implicits[k][0]:
-				if mods_full[smod][0]['min'] < 0 and len(readable_name[mods_full[smod][0]['id']]) > 1:
-					sform = readable_name[mods_full[smod][0]['id']][1]
-				else:
-					sform = readable_name[mods_full[smod][0]['id']][0]
-				vals = []
-				mult = 1
-				if sform['index_handlers'][0]:
-					mult = value_transforms[sform['index_handlers'][0][0]]
-				for entry in mods_full[smod]:
-					if entry['min'] == entry['max']:
-						vals.append('{}'.format(round(entry['min'] * mult, 2)))
+				temp = []
+				for tmod in mods_full[smod]:
+					sform = findname(tmod['min'], tmod['max'], readable_name[tmod['id']])
+					if not sform:
+						continue
+					vals = []
+					mult = 1
+					if sform['index_handlers'][0]:
+						mult = value_transforms[sform['index_handlers'][0][0]]
+					if len(mods_full[smod]) > 1 and all([readable_name[entry['id']][0]['string'] == readable_name[mods_full[smod][0]['id']][0]['string'] for entry in mods_full[smod][1:]]):
+						for entry in mods_full[smod]:
+							if entry['min'] == entry['max']:
+								vals.append('{}'.format(round(entry['min'] * mult, 2)))
+							else:
+								vals.append('({} - {})'.format(round(entry['min'] * mult, 2), round(entry['max'] * mult, 2)))
 					else:
-						vals.append('({} - {})'.format(round(entry['min'] * mult, 2), round(entry['max'] * mult, 2)))
-				out.append(sform['string'].format(*vals))
+						if tmod['min'] == tmod['max']:
+							vals.append('{}'.format(round(tmod['min'] * mult, 2)))
+						else:
+							vals.append('({} - {})'.format(round(tmod['min'] * mult, 2), round(tmod['max'] * mult, 2)))
+					if not sform['string'].format(*vals):
+						print(sform)
+					newmod = sform['string'].format(*vals)
+					if newmod not in temp:
+						temp.append(newmod)
+				out.append(', '.join(temp))
 			output[base][modstr].append((round(k[1] * mult_, 2), '\n'.join(out)))
 	sp = []
 	buf = 'table = {\n'
