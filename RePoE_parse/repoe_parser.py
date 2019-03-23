@@ -17,10 +17,11 @@ def process_json(path='C:\\git\\RePoE\\data'):
 
 	value_transforms = {
 		"per_minute_to_per_second_2dp_if_required": 1/60,
+		"per_minute_to_per_second_2dp": 1/60,
 		"per_minute_to_per_second": 1/60,
 		"milliseconds_to_seconds": 1/1000,
 		"divide_by_one_hundred": 1/100,
-		"negate": 1
+		"negate": -1
 	}
 
 	readable_name = {}
@@ -35,8 +36,10 @@ def process_json(path='C:\\git\\RePoE\\data'):
 	for mod in mods:
 		mods_full[mod] = mods[mod]['stats']
 
+	counter = 0
 	for mod in synthesis:
-		synthesized_implicits[(mod['stat']['id'], abs(mod['stat']['value']))] = (mod['mods'], mod['item_classes'], mod['stat']['value'])
+		synthesized_implicits[(mod['stat']['id'], abs(mod['stat']['value']), counter)] = (mod['mods'], mod['item_classes'], mod['stat']['value'])
+		counter += 1
 
 	output = {}
 	for k in sorted(synthesized_implicits):
@@ -55,7 +58,7 @@ def process_json(path='C:\\git\\RePoE\\data'):
 			form = readable_name[key][0]
 		mult_ = 1
 		if form['index_handlers'][0]:
-			mult_ = value_transforms[form['index_handlers'][0][0]]
+			mult_ = abs(value_transforms[form['index_handlers'][0][0]])
 		modstr = form['string'].format(*form['format'])
 		for base in synthesized_implicits[k][1]:
 			if base not in output:
