@@ -3,6 +3,15 @@
 # Author: Jeremy Parks
 # Note: Requires Python 3.7.x or newer
 bases = {
+	"Two-Point Arrow Quiver": "Quiver",
+	"Serrated Arrow Quiver": "Quiver",
+	"Sharktooth Arrow Quiver": "Quiver",
+	"Blunt Arrow Quiver": "Quiver",
+	"Fire Arrow Quiver": "Quiver",
+	"Broadhead Arrow Quiver": "Quiver",
+	"Penetrating Arrow Quiver": "Quiver",
+	"Ornate Quiver": "Quiver",
+	"Spike-Point Arrow Quiver": "Quiver",
 	"Crude Bow": "Bow",
 	"Short Bow": "Bow",
 	"Long Bow": "Bow",

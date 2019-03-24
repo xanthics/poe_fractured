@@ -3,7 +3,8 @@
 # Author: Jeremy Parks
 # Note: Requires Python 3.7.x or newer
 import pyperclip
-import tkinter as tk
+from tkinter import *
+from tkinter.ttk import *
 from bases import bases
 from mod_table import table
 
@@ -13,17 +14,22 @@ class App:
 		# keep track of what we have already seen on the clipboard
 		self.old = ''
 		# set up window
-		self.root = tk.Tk()
+		self.root = Tk()
 		self.root.title("Fractured mod scanner")
+		# set a theme
+#		self.root.style = Style(self.root)
+#		print(self.root.style.theme_names())
+#		self.root.style.theme_use("default")
+#		print(self.root.style.theme_use())
 		# transparent
 #		self.root.wait_visibility(self.root)
 #		self.root.wm_attributes('-alpha', 0.3)
 		# display clipboard stats
-		self.clipboard_item = tk.Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove")
+		self.clipboard_item = Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove", justify='center')
 		self.clipboard_item.grid(sticky="ns", column=0, row=0, rowspan=10)
 		self.clipboard_item.grid_columnconfigure(0, weight=1)
 		# display base type
-		self.base_type = tk.Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont', anchor="w")
+		self.base_type = Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont', anchor="w")
 		self.base_type.grid(sticky='we', column=1, row=0)
 		self.base_type.grid_columnconfigure(0, weight=1)
 		self.base_type.grid_remove()
@@ -70,7 +76,7 @@ class App:
 				if '(fractured)' in line:
 					if len(self.fracture_stat) <= modcount:
 						# display first fractured mod and possible outcomes
-						self.fracture_stat.append(tk.Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
+						self.fracture_stat.append(Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
 						self.fracture_stat[modcount].grid(sticky='we', column=1, row=modcount+1)
 						self.fracture_stat[modcount].grid_columnconfigure(0, weight=1)
 					# Look up mod in our table and display information about it
