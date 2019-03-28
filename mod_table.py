@@ -1,5 +1,5 @@
 table = {
-	"AbyssJewel": {
+	"Abyss Jewel": {
 		"# Energy Shield Regenerated per second": [(30, '(3 - 4) to maximum Energy Shield'), (100, '0.2% of Energy Shield Regenerated per second')],
 		"# Life Regenerated per second": [(27.0, '(3 - 4) to maximum Life'), (83.33, '0.2% of Life Regenerated per second')],
 		"# Mana Regenerated per second": [(7.0, '(2 - 3) to maximum Mana'), (16.67, '(5 - 7)% increased Mana Regeneration Rate')],

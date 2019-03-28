@@ -57,7 +57,7 @@ class App:
 			# make sure 'Fractured Item' is in our clipboard
 			# if not, display hint and create timer
 			if 'Fractured Item' not in nowsplit:
-				self.clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from https://poedb.tw/ItemSynthesisMods"
+				self.clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from PyPoE via RePoE"
 				self.root.after(1000, self.update_item)
 				return
 			# update main window item text
@@ -134,7 +134,7 @@ class App:
 				for _v in v[1:]:
 					ret += '{:>8}|{}\n'.format('', _v)
 		else:
-			ret = '"{}" is an unrecognized mod for "{}"\n'.format(val, base)
+			ret = '"{}" on "{}" is unrecognized.\nIf it isn\'t part of a hybrid, you have a "dead mod".\n'.format(val, base)
 		return ret[:-1]
 
 
