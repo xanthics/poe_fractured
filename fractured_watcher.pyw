@@ -11,6 +11,8 @@ from mod_table import table
 
 class App:
 	def __init__(self):
+		# Sorted list of bases (longest to shortest) for handling magic items
+		self.base_list = sorted(bases.keys(), key=len, reverse=True)
 		# keep track of what we have already seen on the clipboard
 		self.old = ''
 		# set up window
@@ -66,14 +68,24 @@ class App:
 			base = ''
 			# TODO: better logic for finding item mods
 			# TODO: support for non-fractured mods
-			for line in nowsplit:
+			baseline = ''
+			if nowsplit[0] == 'Rarity: Magic':
 				# Check if line is the name of a known item base
-				if line in bases:
-					self.base_type['text'] = 'Basetype: {}'.format(bases[line])
-					base = bases[line]
-					self.base_type.grid()
+				if any(substring in nowsplit[1] for substring in bases.keys()):
+					baseline = next(substring for substring in bases.keys() if substring in nowsplit[1])
+			elif nowsplit[0] in ['Rarity: Rare', 'Rarity: Unique']:
+				baseline = nowsplit[2]
+			else:
+				print("Error with item: {}".format(nowsplit))
+				return
+			if baseline in bases:
+				self.base_type['text'] = 'Basetype: {}'.format(bases[baseline])
+				base = bases[baseline]
+				self.base_type.grid()
+
+			for line in nowsplit:
 				# Check if line is a fractured mod
-				if '(fractured)' in line:
+				if ' (fractured)' in line:
 					if len(self.fracture_stat) <= modcount:
 						# display first fractured mod and possible outcomes
 						self.fracture_stat.append(Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
