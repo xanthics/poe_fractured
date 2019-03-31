@@ -130,7 +130,7 @@ class App:
 			ret = '{:>8}|{}\n'.format('Count', "Result")
 			for idx in range(len(table[base][val])):
 				v = table[base][val][idx][1].split('\n')
-				ret += '{:>7}+|{}\n'.format(0 if not idx else table[base][val][idx-1][0], v[0])
+				ret += '{:>7}+|{}\n'.format(1 if not idx else table[base][val][idx-1][0] + 1, v[0])
 				for _v in v[1:]:
 					ret += '{:>8}|{}\n'.format('', _v)
 		else:
