@@ -18,7 +18,8 @@ def findname(modmin, modmax, modlist):
 			return v
 		if not v['condition'][0] and v['string']:
 			return v
-	print("{} - {}\n{}".format(modmin, modmax, '\n'.join([str(x) for x in modlist])))
+	errname = '\n'.join([str(x) for x in modlist])
+	print(f"{modmin} - {modmax}\n{errname}")
 
 
 # takes path to RePoE data as only parameter
@@ -96,14 +97,14 @@ def process_json(path='C:\\git\\RePoE\\data'):
 					if len(mods_full[smod]) > 1 and all([readable_name[entry['id']][0]['string'] == readable_name[mods_full[smod][0]['id']][0]['string'] for entry in mods_full[smod][1:]]):
 						for entry in mods_full[smod]:
 							if entry['min'] == entry['max']:
-								vals.append('{}'.format(round(entry['min'] * mult, 2)))
+								vals.append(f"{round(entry['min'] * mult, 2)}")
 							else:
-								vals.append('({} - {})'.format(round(entry['min'] * mult, 2), round(entry['max'] * mult, 2)))
+								vals.append(f"({round(entry['min'] * mult, 2)} - {round(entry['max'] * mult, 2)})")
 					else:
 						if tmod['min'] == tmod['max']:
-							vals.append('{}'.format(round(tmod['min'] * mult, 2)))
+							vals.append(f"{round(tmod['min'] * mult, 2)}")
 						else:
-							vals.append('({} - {})'.format(round(tmod['min'] * mult, 2), round(tmod['max'] * mult, 2)))
+							vals.append(f"({round(tmod['min'] * mult, 2)} - {round(tmod['max'] * mult, 2)})")
 					if not sform['string'].format(*vals):
 						print(sform)
 					newmod = sform['string'].format(*vals)
@@ -114,16 +115,16 @@ def process_json(path='C:\\git\\RePoE\\data'):
 	sp = []
 	buf = 'table = {\n'
 	for base in sorted(output):
-		buf += '\t"{}": {{\n'.format(base)
+		buf += f'\t"{base}": {{\n'
 		for mod in sorted(output[base]):
-			buf += '\t\t"{}": {},\n'.format(mod, output[base][mod])
+			buf += f'\t\t"{mod}": {output[base][mod]},\n'
 			if any([str(x) in mod for x in [1, 2, 3, 4, 5, 6, 7, 8, 9]]):
 				if mod not in sp:
 					sp.append(mod)
 		buf += '\t},\n'
 	buf += '}'
 	for s in sorted(sp):
-		print('"{0}": "{0}",'.format(s))
+		print(f'"{s}": "{s}",')
 	with open('..\\mod_table.py', 'w') as f:
 		f.write(buf)
 

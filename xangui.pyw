@@ -50,7 +50,7 @@ class App:
 		with open('settings.txt', 'w') as f:
 			self._state['clear'] = self._fractured.autoclear
 			for val in ['alpha', 'theme', 'clear']:
-				f.write('{},{}\n'.format(val, self._state[val]))
+				f.write(f'{val},{self._state[val]}\n')
 
 		self._root.destroy()
 
@@ -60,7 +60,7 @@ class App:
 				   'TRadiobutton', 'Horizontal.TScale', 'Vertical.TScale', 'Horizontal.TScrollbar', 'Vertical.TScrollbar', 'TSeparator', 'TSizegrip', 'Treeview']
 		for theme in s.theme_names():
 
-			newname = 'dark {}'.format(theme)
+			newname = f'dark {theme}'
 			self._themes.append(newname)
 			s.theme_create(newname, theme)
 
@@ -73,13 +73,13 @@ class App:
 						r = 65535 - r
 						g = 65535 - g
 						b = 65535 - b
-						vals[v] = '#{:04x}{:04x}{:04x}'.format(r, g, b)
+						vals[v] = f'#{r:04x}{g:04x}{b:04x}'
 				s.theme_settings(newname, {e: {'configure': vals}})
 
 	def _updateAlpha(self, event):
 		self._state['alpha'] = event
 		numevent = float(event)
-		self._root.alphavalue['text'] = '{:.2f}'.format(numevent)
+		self._root.alphavalue['text'] = f'{numevent:.2f}'
 		self._root.wm_attributes('-alpha', numevent)
 
 	def _updateTheme(self, event):

@@ -45,7 +45,8 @@ class FractureApp:
 		self.clearcb = clearcb
 
 	# adds relevant options to option window
-	def _add_option(self, optionwindow, val):
+	@staticmethod
+	def _add_option(optionwindow, val):
 		# set transparency
 		clearcb = IntVar()
 		clearcb.set(val)
@@ -88,9 +89,9 @@ class FractureApp:
 			elif nowsplit[0] in ['Rarity: Rare', 'Rarity: Unique']:
 				baseline = nowsplit[2]
 			else:
-				print("Error with item: {}".format(nowsplit))
+				print(f"Error with item: {nowsplit}")
 				return
-			self._base_type['text'] = 'Basetype: {}'.format(bases[baseline])
+			self._base_type['text'] = f'Basetype: {bases[baseline]}'
 			base = bases[baseline]
 			self._base_type.grid()
 
@@ -104,7 +105,7 @@ class FractureApp:
 						self._fracture_stat[modcount].grid_columnconfigure(0, weight=1)
 					# Look up mod in our table and display information about it
 					mod = line.replace(' (fractured)', '')
-					self._fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
+					self._fracture_stat[modcount]['text'] = f'Mod name: {mod}\n'
 					self._fracture_stat[modcount]['text'] += self._findmods(base, mod)
 					self._fracture_stat[modcount].grid()
 					modcount += 1
@@ -116,7 +117,8 @@ class FractureApp:
 		self._root.after(1000, self._update_item)
 
 	# Given a base type and a mod, return formatted information about it
-	def _findmods(self, base, mod):
+	@staticmethod
+	def _findmods(base, mod):
 		# Some mods have static numbers in them.  Check those first before processing mod
 		lookups = {
 			"% Chance to Trigger Level 18 Summon Spectral Wolf on Kill": "#% Chance to Trigger Level 18 Summon Spectral Wolf on Kill",
@@ -154,12 +156,12 @@ class FractureApp:
 				val = val.replace('##', '#')
 		# Check if mod is in our lookup table
 		if val in table[base]:
-			ret = '{:>8}|{}\n'.format('Count', "Result")
+			ret = f'{"Count":>8}|{"Result"}\n'
 			for idx in range(len(table[base][val])):
 				v = table[base][val][idx][1].split('\n')
-				ret += '{:>7}+|{}\n'.format(1 if not idx else table[base][val][idx-1][0] + 1, v[0])
+				ret += f'{1 if not idx else table[base][val][idx-1][0] + 1:>7}+|{v[0]}\n'
 				for _v in v[1:]:
-					ret += '{:>8}|{}\n'.format('', _v)
+					ret += f'{"":>8}|{_v}\n'
 		else:
-			ret = '"{}" on "{}" is unrecognized.\nIf it isn\'t part of a hybrid, you have a "dead mod".\n'.format(val, base)
+			ret = f'"{val}" on "{base}" is unrecognized.\nIf it isn\'t part of a hybrid, you have a "dead mod".\n'
 		return ret[:-1]
