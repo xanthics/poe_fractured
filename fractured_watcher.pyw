@@ -9,49 +9,62 @@ from bases import bases
 from mod_table import table
 
 
-class App:
-	def __init__(self):
+class FractureApp:
+	def __init__(self, rootwindow, optionwindow, clearstate):
+		# update options window
+		self.autoclear = self._add_option(optionwindow, clearstate)
+		self._countdown = 10
 		# Sorted list of bases (longest to shortest) for handling magic items
-		self.base_list = sorted(bases.keys(), key=len, reverse=True)
+		self._base_list = sorted(bases.keys(), key=len, reverse=True)
 		# keep track of what we have already seen on the clipboard
-		self.old = ''
+		self._old = ''
 		# set up window
-		self.root = Tk()
-		self.root.title("Fractured mod scanner")
+		self._root = rootwindow
 		# set a theme
-#		self.root.style = Style(self.root)
-#		print(self.root.style.theme_names())
-#		self.root.style.theme_use("default")
-#		print(self.root.style.theme_use())
-		# transparent
-#		self.root.wait_visibility(self.root)
-#		self.root.wm_attributes('-alpha', 0.3)
 		# display clipboard stats
-		self.clipboard_item = Label(self.root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove", justify='center')
-		self.clipboard_item.grid(sticky="ns", column=0, row=0, rowspan=10)
-		self.clipboard_item.grid_columnconfigure(0, weight=1)
+		self._clipboard_item = Label(self._root, text="Copy a fractured item to your keyboard", borderwidth=2, relief="groove", justify='center')
+		self._clipboard_item.grid(sticky="ns", column=0, row=0, rowspan=10)
+		self._clipboard_item.grid_columnconfigure(0, weight=1)
 		# display base type
-		self.base_type = Label(self.root, text="", borderwidth=2, relief="groove", font='TkFixedFont', anchor="w")
-		self.base_type.grid(sticky='we', column=1, row=0)
-		self.base_type.grid_columnconfigure(0, weight=1)
-		self.base_type.grid_remove()
+		self._base_type = Label(self._root, text="", borderwidth=2, relief="groove", font='TkFixedFont', anchor="w")
+		self._base_type.grid(sticky='we', column=1, row=0)
+		self._base_type.grid_columnconfigure(0, weight=1)
+		self._base_type.grid_remove()
 		# keep track of all the stat windows we create
-		self.fracture_stat = []
+		self._fracture_stat = []
 		# enter timer function
-		self.update_item()
-		self.root.mainloop()
+		self._update_item()
+
+	# return the current state of autoclear clipboard
+	@property
+	def autoclear(self):
+		return self.clearcb.get()
+
+	@autoclear.setter
+	def autoclear(self, clearcb):
+		self.clearcb = clearcb
+
+	# adds relevant options to option window
+	def _add_option(self, optionwindow, val):
+		# set transparency
+		clearcb = IntVar()
+		clearcb.set(val)
+		Checkbutton(optionwindow, text="Auto Clear Clipboard(10s)", variable=clearcb).grid(column=0, row=2, columnspan=2)
+		return clearcb
 
 	# Watches the clipboard and updates the window as necessary
-	def update_item(self):
+	def _update_item(self):
 		# get data from clipboard
 		now = pyperclip.paste()
 		# check for new item
-		if self.old != now:
+		if self._old != now:
+			# update countdown timer
+			self._countdown = 10
 			# update our last seen clip
-			self.old = now
+			self._old = now
 			# hide all extra boxes, they will show again when they have data
-			self.base_type.grid_remove()
-			for square in self.fracture_stat:
+			self._base_type.grid_remove()
+			for square in self._fracture_stat:
 				square.grid_remove()
 			# remove windows carriage returns
 			now = now.replace('\r', '').strip()
@@ -59,13 +72,12 @@ class App:
 			# make sure 'Fractured Item' is in our clipboard
 			# if not, display hint and create timer
 			if 'Fractured Item' not in nowsplit:
-				self.clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from PyPoE via RePoE"
-				self.root.after(1000, self.update_item)
+				self._clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from PyPoE via RePoE"
+				self._root.after(1000, self._update_item)
 				return
 			# update main window item text
-			self.clipboard_item['text'] = now
+			self._clipboard_item['text'] = now
 			modcount = 0
-			base = ''
 			# TODO: better logic for finding item mods
 			# TODO: support for non-fractured mods
 			baseline = ''
@@ -78,30 +90,33 @@ class App:
 			else:
 				print("Error with item: {}".format(nowsplit))
 				return
-			if baseline in bases:
-				self.base_type['text'] = 'Basetype: {}'.format(bases[baseline])
-				base = bases[baseline]
-				self.base_type.grid()
+			self._base_type['text'] = 'Basetype: {}'.format(bases[baseline])
+			base = bases[baseline]
+			self._base_type.grid()
 
 			for line in nowsplit:
 				# Check if line is a fractured mod
 				if ' (fractured)' in line:
-					if len(self.fracture_stat) <= modcount:
+					if len(self._fracture_stat) <= modcount:
 						# display first fractured mod and possible outcomes
-						self.fracture_stat.append(Label(self.root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
-						self.fracture_stat[modcount].grid(sticky='we', column=1, row=modcount+1)
-						self.fracture_stat[modcount].grid_columnconfigure(0, weight=1)
+						self._fracture_stat.append(Label(self._root, text="", borderwidth=2, relief="groove", justify='left', font='TkFixedFont', anchor="w"))
+						self._fracture_stat[modcount].grid(sticky='we', column=1, row=modcount + 1)
+						self._fracture_stat[modcount].grid_columnconfigure(0, weight=1)
 					# Look up mod in our table and display information about it
 					mod = line.replace(' (fractured)', '')
-					self.fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
-					self.fracture_stat[modcount]['text'] += self.findmods(base, mod)
-					self.fracture_stat[modcount].grid()
+					self._fracture_stat[modcount]['text'] = 'Mod name: {}\n'.format(mod)
+					self._fracture_stat[modcount]['text'] += self._findmods(base, mod)
+					self._fracture_stat[modcount].grid()
 					modcount += 1
+		if self.autoclear and self._countdown > -1:
+			if not self._countdown:
+				pyperclip.copy('')
+			self._countdown -= 1
 		# call this function again in 1 second
-		self.root.after(1000, self.update_item)
+		self._root.after(1000, self._update_item)
 
 	# Given a base type and a mod, return formatted information about it
-	def findmods(self, base, mod):
+	def _findmods(self, base, mod):
 		# Some mods have static numbers in them.  Check those first before processing mod
 		lookups = {
 			"% Chance to Trigger Level 18 Summon Spectral Wolf on Kill": "#% Chance to Trigger Level 18 Summon Spectral Wolf on Kill",
@@ -148,7 +163,3 @@ class App:
 		else:
 			ret = '"{}" on "{}" is unrecognized.\nIf it isn\'t part of a hybrid, you have a "dead mod".\n'.format(val, base)
 		return ret[:-1]
-
-
-if __name__ == '__main__':
-	main = App()
