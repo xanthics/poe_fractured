@@ -7,22 +7,27 @@
 from tkinter import *
 from tkinter.ttk import *
 from fractured_watcher import FractureApp
+from json import load, dump
 
 
+# TODO: save window location
+# TODO: Stay on top
 class App:
 	def __init__(self):
 		# set up window
 		self._root = Tk()
 		self._root.title("Xan-GUI")
+		self._root.iconbitmap('favicon.ico')
 		self._root.protocol("WM_DELETE_WINDOW", self._onclosing)
+		default_state = {'alpha': '1', 'theme': 'clam', 'clear': '1', 'trigger': '0', 'window state': '200x115+0+0'}
 		try:
-			self._state = {'alpha': '1', 'theme': 'dark clam', 'clear': '1'}
-			with open('settings.txt', 'r') as f:
-				for line in f:
-					line = line.strip().split(',')
-					self._state[line[0]] = line[1]
-		except (FileNotFoundError, IndexError):
-			self._state = {'alpha': '1', 'theme': 'clam', 'clear': '1'}
+			with open('settings.json', 'r') as f:
+				self._state = load(f)
+		except (FileNotFoundError, TypeError):
+			print("Something went wrong, using defaults.")
+		for val in set(default_state.keys()).difference(set(self._state.keys())):
+			self._state[val] = default_state[val]
+		self._root.geometry(self._state['window state'])
 
 		self._root.style = Style(self._root)
 		self._themes = list(self._root.style.theme_names())
@@ -44,19 +49,36 @@ class App:
 		# create options first so that module windows can add to it
 		self._options()
 		self._fractured = FractureApp(self._tabbed_list[0], self._tabbed_list[-1], self._state['clear'])
+		# enter timer function
+		self._flip = 0  # so that we only change the alpha once per direction
+		self._check_trigger()
+
 		self._root.mainloop()
 
+	def _check_trigger(self):
+		if self._state['autoalpha'].get() and self._fractured.trigger:
+			if self._flip:
+				self._flip = ~self._flip
+				self._root.wm_attributes('-alpha', 1.0)
+		elif not self._flip:
+			self._flip = ~self._flip
+			self._root.wm_attributes('-alpha', self._state['alpha'])
+
+		self._root.after(1000, self._check_trigger)
+
 	def _onclosing(self):
-		with open('settings.txt', 'w') as f:
+		with open('settings.json', 'w') as f:
+			self._state['window state'] = self._root.geometry()
 			self._state['clear'] = self._fractured.autoclear
-			for val in ['alpha', 'theme', 'clear']:
-				f.write(f'{val},{self._state[val]}\n')
+			self._state['trigger'] = self._state['autoalpha'].get()
+			del self._state['autoalpha']
+			dump(self._state, f)
 
 		self._root.destroy()
 
 	def _customthemes(self):
 		s = self._root.style
-		widgets = ['TButton', 'TCheckbutton', 'TCombobox', 'TEntry', 'TFrame', 'TLabel', 'TLabelframe', 'TMenubutton', 'TNotebook', 'TNotebook.Tab','TPanedwindow', 'Horizontal.TProgressbar', 'Vertical.TProgressbar',
+		widgets = ['TButton', 'TCheckbutton', 'TCombobox', 'TEntry', 'TFrame', 'TLabel', 'TLabelframe', 'TMenubutton', 'TNotebook', 'TNotebook.Tab', 'TPanedwindow', 'Horizontal.TProgressbar', 'Vertical.TProgressbar',
 				   'TRadiobutton', 'Horizontal.TScale', 'Vertical.TScale', 'Horizontal.TScrollbar', 'Vertical.TScrollbar', 'TSeparator', 'TSizegrip', 'Treeview']
 		for theme in s.theme_names():
 
@@ -90,14 +112,19 @@ class App:
 	def _options(self):
 		optiontab = self._tabbed_list[-1]
 		# set transparency
-		Label(optiontab, text="Transparency", borderwidth=2, relief="groove").grid(column=0, row=0)
+		Label(optiontab, text="Transparency", borderwidth=2, relief="groove", justify='right', anchor="w").grid(sticky='we', column=0, row=0)
 		self._root.wm_attributes('-alpha', self._state['alpha'])
-		Scale(optiontab, from_=.1, to=1, value=self._state['alpha'], orient=HORIZONTAL, command=self._updateAlpha).grid(column=1, row=0)
+		Scale(optiontab, from_=.1, to=1, value=self._state['alpha'], orient=HORIZONTAL, command=self._updateAlpha).grid(sticky='we', column=1, row=0)
 		self._root.alphavalue = Label(optiontab, text="1", borderwidth=2, relief="groove")
 		self._root.alphavalue.grid(column=2, row=0)
 		# set theme
-		Label(optiontab, text="Theme", borderwidth=2, relief="groove").grid(column=0, row=1)
-		OptionMenu(optiontab, StringVar(optiontab), self._root.style.theme_use(), *self._themes, command=self._updateTheme).grid(column=1, row=1)
+		Label(optiontab, text="Theme", borderwidth=2, relief="groove", justify='right', anchor="w").grid(sticky='we', column=0, row=1)
+		OptionMenu(optiontab, StringVar(optiontab), self._root.style.theme_use(), *self._themes, command=self._updateTheme).grid(sticky='we', column=1, row=1)
+		# set transparency
+		autoalpha = IntVar()
+		autoalpha.set(self._state['trigger'])
+		self._state['autoalpha'] = autoalpha
+		Checkbutton(optiontab, text="Full Visibility on state change(10s)", variable=self._state['autoalpha']).grid(sticky='we', column=0, row=2, columnspan=2)
 
 
 if __name__ == '__main__':
