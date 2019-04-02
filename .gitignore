@@ -7,3 +7,4 @@ dist/
 fractured_watcher_x86-64.multi_file.spec
 fractured_watcher_x86-64.single_file.exe.spec
 settings.txt
+settings.json
