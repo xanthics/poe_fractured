@@ -8,9 +8,12 @@ from tkinter.ttk import *
 from bases import bases
 from mod_table import table
 
-
+# TODO: Handle non-fractured mods
+# TODO: sum mods and show average needed for each result tier from other 2 items if synthesized.
 class FractureApp:
 	def __init__(self, rootwindow, optionwindow, clearstate):
+		# keep track of recent state changes
+		self.trigger = 0
 		# update options window
 		self.autoclear = self._add_option(optionwindow, clearstate)
 		self._countdown = 10
@@ -35,6 +38,18 @@ class FractureApp:
 		# enter timer function
 		self._update_item()
 
+	# return the current state of trigger.  Intended to be called 1x per second
+	@property
+	def trigger(self):
+		if self.recent_update:
+			self.recent_update -= 1
+
+		return self.recent_update
+
+	@trigger.setter
+	def trigger(self, val):
+		self.recent_update = val+1
+
 	# return the current state of autoclear clipboard
 	@property
 	def autoclear(self):
@@ -50,7 +65,7 @@ class FractureApp:
 		# set transparency
 		clearcb = IntVar()
 		clearcb.set(val)
-		Checkbutton(optionwindow, text="Auto Clear Clipboard(10s)", variable=clearcb).grid(column=0, row=2, columnspan=2)
+		Checkbutton(optionwindow, text="Auto Clear Clipboard(10s)", variable=clearcb).grid(sticky='we', column=0, row=3, columnspan=2)
 		return clearcb
 
 	# Watches the clipboard and updates the window as necessary
@@ -73,9 +88,12 @@ class FractureApp:
 			# make sure 'Fractured Item' is in our clipboard
 			# if not, display hint and create timer
 			if 'Fractured Item' not in nowsplit:
+				self.trigger = 0
 				self._clipboard_item['text'] = "Copy a fractured item to your keyboard\nData is from PyPoE via RePoE"
 				self._root.after(1000, self._update_item)
 				return
+			# we want to be fully visible for self._countdown ticks
+			self.trigger = self._countdown
 			# update main window item text
 			self._clipboard_item['text'] = now
 			modcount = 0
