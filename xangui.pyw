@@ -24,10 +24,12 @@ class App:
 			with open('settings.json', 'r') as f:
 				self._state = load(f)
 		except (FileNotFoundError, TypeError):
+			self._state = {}
 			print("Something went wrong, using defaults.")
 		for val in set(default_state.keys()).difference(set(self._state.keys())):
 			self._state[val] = default_state[val]
 		self._root.geometry(self._state['window state'])
+		self._root.geometry("")
 
 		self._root.style = Style(self._root)
 		self._themes = list(self._root.style.theme_names())
