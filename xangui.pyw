@@ -8,6 +8,18 @@ from tkinter import *
 from tkinter.ttk import *
 from fractured_watcher import FractureApp
 from json import load, dump
+import os
+
+
+def resource_path(relative_path):
+	""" Get absolute path to resource, works for dev and for PyInstaller """
+	try:
+		# PyInstaller creates a temp folder and stores path in _MEIPASS
+		base_path = sys._MEIPASS
+	except Exception:
+		base_path = os.path.abspath(".")
+
+	return os.path.join(base_path, relative_path)
 
 
 # TODO: save window location
@@ -17,7 +29,7 @@ class App:
 		# set up window
 		self._root = Tk()
 		self._root.title("Xan-GUI")
-		self._root.iconbitmap('favicon.ico')
+		self._root.iconbitmap(resource_path("favicon.ico"))
 		self._root.protocol("WM_DELETE_WINDOW", self._onclosing)
 		default_state = {'alpha': '1', 'theme': 'clam', 'clear': '1', 'trigger': '0', 'window state': '200x115+0+0'}
 		try:
