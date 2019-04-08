@@ -102,8 +102,8 @@ class FractureApp:
 			baseline = ''
 			if nowsplit[0] == 'Rarity: Magic':
 				# Check if line is the name of a known item base
-				if any(substring in nowsplit[1] for substring in bases.keys()):
-					baseline = next(substring for substring in bases.keys() if substring in nowsplit[1])
+				if any(substring in nowsplit[1] for substring in self._base_list):
+					baseline = next(substring for substring in self._base_list if substring in nowsplit[1])
 			elif nowsplit[0] in ['Rarity: Rare', 'Rarity: Unique']:
 				baseline = nowsplit[2]
 			else:
